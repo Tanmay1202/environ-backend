@@ -7,40 +7,31 @@ const { Client } = require('@googlemaps/google-maps-services-js');
 const app = express();
 
 // Initialize Vision API client with credentials
-let visionClient;
-try {
-  visionClient = new vision.ImageAnnotatorClient({
-    credentials: JSON.parse(process.env.GOOGLE_CLOUD_VISION_CREDENTIALS || '{}')
-  });
-} catch (error) {
-  console.error('Error initializing Vision API client:', error);
-}
+const visionClient = new vision.ImageAnnotatorClient({
+  credentials: JSON.parse(process.env.GOOGLE_CLOUD_VISION_CREDENTIALS || '{}')
+});
 
 // Initialize Google Maps client
 const googleMapsClient = new Client({});
 
-// Use CORS middleware to allow requests from your frontend
+// Use CORS middleware with proper configuration
 app.use(cors({
-  origin: [
-    'https://5173-idx-environ-1742316025738.cluster-mwrgkbggpvbq6tvtviraw2knqg.cloudworkstations.dev',
-    'http://localhost:5173',
-    'https://environ-frontend.vercel.app',
-    'https://*.vercel.app'
-  ],
+  origin: '*',  // Be more specific in production
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Middleware to parse JSON bodies with size limit
+// Middleware to parse JSON bodies
 app.use(express.json({ limit: '10mb' }));
+
+// Root endpoint for health check
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+  res.json({ status: 'ok' });
 });
 
 // Classify waste type based on Vision API labels
@@ -121,25 +112,11 @@ const findNearbyLocations = async (wasteType, userLocation) => {
 app.post('/api/classify-waste', async (req, res) => {
   try {
     const { imageBase64, userLocation } = req.body;
-    
-    // Validate input
     if (!imageBase64) {
-      return res.status(400).json({ 
-        error: 'No image data provided',
-        details: 'Please provide a valid base64 encoded image'
-      });
+      return res.status(400).json({ error: 'No image data provided' });
     }
-    
     if (!userLocation || !userLocation.lat || !userLocation.lng) {
-      return res.status(400).json({ 
-        error: 'Invalid location data',
-        details: 'Please provide valid latitude and longitude coordinates'
-      });
-    }
-
-    // Check if Vision API client is initialized
-    if (!visionClient) {
-      throw new Error('Vision API client not initialized');
+      return res.status(400).json({ error: 'User location (lat, lng) is required' });
     }
 
     // Use Google Cloud Vision API for label detection
@@ -156,30 +133,22 @@ app.post('/api/classify-waste', async (req, res) => {
     // Fetch nearby locations
     const locations = await findNearbyLocations(wasteType, userLocation);
 
-    res.json({ 
-      labels, 
-      wasteType, 
-      locations,
-      timestamp: new Date().toISOString()
-    });
+    res.json({ labels, wasteType, locations });
   } catch (error) {
     console.error('Error in /classify-waste:', error);
-    res.status(500).json({ 
-      error: 'Failed to classify image',
-      details: error.message,
-      timestamp: new Date().toISOString()
-    });
+    res.status(500).json({ error: error.message || 'Failed to classify image' });
   }
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    details: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
-    timestamp: new Date().toISOString()
-  });
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// Handle 404
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 // For local development
