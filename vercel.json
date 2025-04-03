@@ -8,11 +8,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "env": {
-    "VITE_SUPABASE_URL": "https://ikvpvqbqsrlsihzwykln.supabase.co",
-    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrdnB2cWJxc3Jsc2loend5a2xuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3MTI2NjYsImV4cCI6MjA1ODI4ODY2Nn0.y2NKH3kAYaN5RucbAjyepHRpIqn-FiCnql5BsTHRduw",
-    "VITE_API_URL": "https://your-backend-vercel-url.vercel.app"
-  },
   "headers": [
     {
       "source": "/(.*)",
