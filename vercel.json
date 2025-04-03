@@ -17,8 +17,6 @@
     }
   ],
   "env": {
-    "GOOGLE_MAPS_API_KEY": "@google-maps-api-key",
-    "GOOGLE_CLOUD_VISION_CREDENTIALS": "@google-cloud-vision-credentials",
     "NODE_ENV": "production"
   }
-} 
+}
