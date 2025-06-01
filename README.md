@@ -124,4 +124,4 @@ The application is configured for deployment on Vercel. The deployment process i
 
 ## 📞 Support
 
-For support, please contact [your contact information]. 
+For support, please contact [linkedin](https://www.linkedin.com/in/tanmay1202/), [X](https://x.com/tanmaybenot). 
