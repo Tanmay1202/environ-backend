@@ -110,9 +110,6 @@ The application is configured for deployment on Vercel. The deployment process i
 - `GOOGLE_MAPS_API_KEY`: Google Maps API key
 - `PORT`: Server port (optional, defaults to 3000)
 
-## 📝 License
-
-[Your License Here]
 
 ## 🤝 Contributing
 
